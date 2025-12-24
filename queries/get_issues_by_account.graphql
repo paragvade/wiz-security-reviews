@@ -1,0 +1,38 @@
+query GetIssuesByAccount($subscriptionId: [String!]) {
+  issuesV2(
+    first: 100
+    filterBy: {
+      status: [OPEN, IN_PROGRESS]
+      relatedEntity: {
+        subscriptionId: $subscriptionId
+      }
+    }
+  ) {
+    nodes {
+      id
+      severity
+      status
+      createdAt
+      sourceRule {
+        ... on Control {
+          name
+          description
+        }
+      }
+      entitySnapshot {
+        name
+        type
+        nativeType
+        cloudPlatform
+        region
+        subscriptionExternalId
+      }
+    }
+    totalCount
+    criticalSeverityCount
+    highSeverityCount
+    mediumSeverityCount
+    lowSeverityCount
+    informationalSeverityCount
+  }
+}
