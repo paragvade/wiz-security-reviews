@@ -6,7 +6,11 @@ Automates cloud security posture reviews using Wiz GraphQL API
 import os
 import json
 import requests
+import urllib3
 from dotenv import load_dotenv
+
+# Suppress SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Load environment variables
 load_dotenv()
@@ -16,6 +20,9 @@ WIZ_CLIENT_ID = os.getenv("WIZ_CLIENT_ID")
 WIZ_CLIENT_SECRET = os.getenv("WIZ_CLIENT_SECRET")
 WIZ_API_URL = os.getenv("WIZ_API_URL")
 WIZ_AUTH_URL = os.getenv("WIZ_AUTH_URL")
+
+# Wiz Console URL for issue links
+WIZ_CONSOLE_URL = "https://app.wiz.io"
 
 
 def get_token():
@@ -33,23 +40,6 @@ def get_token():
     )
     response.raise_for_status()
     return response.json()["access_token"]
-
-def check_token_scopes(token):
-    """Debug: Check what scopes the token has"""
-    import base64
-    import json
-    
-    # Decode JWT payload (middle part)
-    parts = token.split('.')
-    if len(parts) >= 2:
-        payload = parts[1]
-        # Add padding if needed
-        padding = 4 - len(payload) % 4
-        if padding != 4:
-            payload += '=' * padding
-        decoded = base64.b64decode(payload)
-        data = json.loads(decoded)
-        print(f"Token scopes: {data.get('scope', 'No scopes found')}")
 
 
 def run_query(token, query, variables=None):
@@ -142,6 +132,57 @@ def get_issues(token, subscription_id):
     return run_query(token, query, {"subscriptionId": [subscription_id]})
 
 
+def print_issue_details(issues_data, max_per_severity=10):
+    """Print detailed issues grouped by severity with Wiz links"""
+    nodes = issues_data.get("issuesV2", {}).get("nodes", [])
+    
+    # Group issues by severity
+    by_severity = {
+        "CRITICAL": [],
+        "HIGH": [],
+        "MEDIUM": [],
+        "LOW": []
+    }
+    
+    for issue in nodes:
+        severity = issue.get("severity")
+        if severity in by_severity:
+            by_severity[severity].append(issue)
+    
+    # Print each severity group
+    for severity in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
+        issues = by_severity[severity]
+        print(f"\n{'='*60}")
+        print(f"{severity} ISSUES ({len(issues)})")
+        print('='*60)
+        
+        if not issues:
+            print("None")
+            continue
+        
+        for i, issue in enumerate(issues[:max_per_severity], 1):
+            issue_id = issue.get("id")
+            source_rule = issue.get("sourceRule") or {}
+            entity = issue.get("entitySnapshot") or {}
+            
+            name = source_rule.get("name", "Unknown")
+            resource = entity.get("name", "Unknown")
+            resource_type = entity.get("type", "Unknown")
+            region = entity.get("region") or "Global"
+            created = issue.get("createdAt", "")[:10]
+            
+            wiz_link = f"{WIZ_CONSOLE_URL}/issues#%7E%28issue%7E%27{issue_id}%29"   
+                     
+            print(f"\n{i}. {name}")
+            print(f"   Resource: {resource}")
+            print(f"   Type: {resource_type} | Region: {region}")
+            print(f"   Created: {created}")
+            print(f"   Link: {wiz_link}")
+        
+        if len(issues) > max_per_severity:
+            print(f"\n   ... and {len(issues) - max_per_severity} more {severity} issues")
+
+
 def print_summary(account_info, issues_data):
     """Print a summary of the security review"""
     issues = issues_data.get("issuesV2", {})
@@ -161,6 +202,9 @@ def print_summary(account_info, issues_data):
     print(f"  LOW:           {issues.get('lowSeverityCount', 0)}")
     print(f"  INFORMATIONAL: {issues.get('informationalSeverityCount', 0)}")
     print("=" * 60)
+    
+    # Print detailed issues
+    print_issue_details(issues_data)
 
 
 def main():
@@ -170,8 +214,6 @@ def main():
     print("\nAuthenticating with Wiz...")
     token = get_token()
     print("Authentication successful!")
-
-    check_token_scopes(token)
     
     print(f"\nLooking up account: {account_id}")
     account_info = get_cloud_account_id(token, account_id)
