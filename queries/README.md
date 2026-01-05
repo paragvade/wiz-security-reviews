@@ -9,7 +9,7 @@ This document serves as an index of all available queries, with usage notes and 
 
 1. [Get All Roles](#get-all-roles) 
 2. [Get Role Permissions](#get-role-permissions) 
-3. [Get Issues by Account](#get-issues-by-account) - Retrieve security issues for a cloud account
+3. [Get Issues by Account](#get-issues-by-account)
 
 ---
 
