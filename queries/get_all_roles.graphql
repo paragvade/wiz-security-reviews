@@ -1,0 +1,9 @@
+query GetAllRoles {
+  userRoles(first: 100) {
+    nodes {
+      id
+      name
+      description
+    }
+  }
+}
