@@ -1,0 +1,8 @@
+query GetRoleById($roleId: ID!) {
+  userRole(id: $roleId) {
+    id
+    name
+    description
+    scopes
+  }
+}
