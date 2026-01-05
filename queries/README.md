@@ -16,6 +16,16 @@ This document serves as an index of all available queries, with usage notes and 
 
 ## Available Queries
 
+### Get All Roles
+**Query File:** [`get_all_roles.graphql`](./get_all_roles.graphql)
+Retrieves a list of all available Wiz roles (both built-in and custom) in your organization. Useful for discovering role IDs needed for the Get Role Permissions query.
+
+**Key Features:**
+- Returns all roles with their IDs, names, and descriptions
+- Shows both built-in roles (e.g., `PROJECT_READER`) and custom roles (UUID-based)
+- Pagination support for organizations with many custom roles
+
+
 ### Get Role Permissions
 **Query File:** [`get_role_permissions.graphql`](./get_role_permissions.graphql)
 Retrieves detailed permissions (scopes) for a specific Wiz role. Useful for understanding role capabilities, comparing roles, and auditing access levels.
@@ -32,15 +42,6 @@ Retrieves detailed permissions (scopes) for a specific Wiz role. Useful for unde
   "roleId": "PROJECT_READER"
 }
 ```
-
-### Get All Roles
-**Query File:** [`get_all_roles.graphql`](./get_all_roles.graphql)
-Retrieves a list of all available Wiz roles (both built-in and custom) in your organization. Useful for discovering role IDs needed for the Get Role Permissions query.
-
-**Key Features:**
-- Returns all roles with their IDs, names, and descriptions
-- Shows both built-in roles (e.g., `PROJECT_READER`) and custom roles (UUID-based)
-- Pagination support for organizations with many custom roles
 
 
 ### Get Issues by Account
