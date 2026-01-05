@@ -18,6 +18,7 @@ This document serves as an index of all available queries, with usage notes and 
 
 ### Get All Roles
 **Query File:** [`get_all_roles.graphql`](./get_all_roles.graphql)
+
 Retrieves a list of all available Wiz roles (both built-in and custom) in your organization. Useful for discovering role IDs needed for the Get Role Permissions query.
 
 **Key Features:**
@@ -28,6 +29,7 @@ Retrieves a list of all available Wiz roles (both built-in and custom) in your o
 
 ### Get Role Permissions
 **Query File:** [`get_role_permissions.graphql`](./get_role_permissions.graphql)
+
 Retrieves detailed permissions (scopes) for a specific Wiz role. Useful for understanding role capabilities, comparing roles, and auditing access levels.
 
 **Key Features:**
@@ -46,6 +48,7 @@ Retrieves detailed permissions (scopes) for a specific Wiz role. Useful for unde
 
 ### Get Issues by Account
 **Query File:** [`get_issues_by_account.graphql`](./get_issues_by_account.graphql)
+
 Retrieves security issues for a specific cloud account. Returns open and in-progress issues grouped by severity. Essential for pre-deployment security reviews and ongoing security posture monitoring.
 
 **Key Features:**
